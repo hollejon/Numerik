@@ -3,7 +3,7 @@ from scipy.linalg import solve_triangular
 import matplotlib.pyplot as plt
 from numpy.linalg import cholesky
 
-data = np.genfromtxt('data.txt')
+data = np.genfromtxt('Praktikum4/data.txt')
 t = data[:,0]         
 y_m = data[:,1]                  
 
