@@ -1,0 +1,11 @@
+# Kommentar - Diese Zeile wird ignoriert
+temp/
+*.log
+praktikum3.pdf
+lab4.py
+lab4_2.py
+data.txt
+test.py
+praktikum5.py
+praktikum5.pdf
+praktikum4.pdf
