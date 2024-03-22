@@ -36,7 +36,35 @@ def LUT(M):
 
 
 
+# LU decomposition for general matrix A
+def LU(A):
+    m = A.shape[0]
+    idx = np.array(range(m))    
+    #print("M", m, "idx: ", idx, "A: ", A)
 
+    for k in range(0,m):
+
+
+        for i in range(k+1,m):
+            if(A[k][k] == 0):
+                #Pivot ist gleich 0 -> Vertausche Zeilen
+                # Aktuelle zeile Speichern
+                row_act = A[k].copy()
+                
+                # Zeile überschreiben
+                A[k] = A[k+1]
+                A[k+1] = row_act
+
+                # P Vektor anpassen
+                idx[k] = k+1
+                idx[k+1] = k
+
+            A[i][k]= A[i][k]/A[k][k]
+ 
+            for j in range(k+1,m):
+                A[i][j] = A[i][j] - A[i][k]*A[k][j]
+
+    return A, idx
 
 
 
@@ -86,35 +114,7 @@ def fbSubs(LR, b):
     return x
 
 
-# LU decomposition for general matrix A
-def LU(A):
-    m = A.shape[0]
-    idx = np.array(range(m))    
-    #print("M", m, "idx: ", idx, "A: ", A)
 
-    for k in range(0,m):
-
-
-        for i in range(k+1,m):
-            if(A[k][k] == 0):
-                #Pivot ist gleich 0 -> Vertausche Zeilen
-                # Aktuelle zeile Speichern
-                row_act = A[k].copy()
-                
-                # Zeile überschreiben
-                A[k] = A[k+1]
-                A[k+1] = row_act
-
-                # P Vektor anpassen
-                idx[k] = k+1
-                idx[k+1] = k
-
-            A[i][k]= A[i][k]/A[k][k]
- 
-            for j in range(k+1,m):
-                A[i][j] = A[i][j] - A[i][k]*A[k][j]
-
-    return A, idx
 
 
 
