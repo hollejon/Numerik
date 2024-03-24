@@ -92,6 +92,23 @@ def fbSubsT(LU, b):
     return x
 
 
+# lineares Gleichungssystem A*x = b lösen.
+def linsolve(A, b):
+    M_LU, idx = LU(A)
+    #Fuer L*R*x = P*b muessen wir P*b berechnen
+    rows_b = len(b)
+    P_b = np.zeros(rows_b)
+    
+    for i, val in enumerate(idx):
+        # i := 0,1,2,...
+        # val := index der Zeile von P
+        P_b[i] = b[val]
+
+    res = fbSubs(M_LU, P_b)
+    return res
+
+
+
 
 # Solve Ax = b for general matrix A
 def fbSubs(LR, b):
