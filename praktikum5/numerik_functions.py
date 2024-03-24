@@ -117,9 +117,27 @@ def fbSubs(LR, b):
 
 
 
+# Householder transformation
+def HouseholderTransformation(w):
+    Im = np.eye((len(w)))
+    x = w[:,0]
+    x_norm = norm(x)
+    sgn = mysign(w[0,0])
+    e_1 = e(len(w))
 
+    v = x + (sgn * x_norm) * e_1
 
+    #print("Erster Vektor: ", x, x_norm, "\tSGN: ",sgn, w[0,0], "e1: ", e_1, v)
 
+    v_t_v = v.T @ v
+    v_v_t = np.outer(v,v) # v mal v.T rechnen
+    #print("V: ",np.absolute(w))
+
+    H = Im - ((2* v_v_t) /  v_t_v)
+    #print("Im: ", Im)
+    #print(v_t_v, v_v_t)
+    #print("H:", H)
+    return H
 
 
 
