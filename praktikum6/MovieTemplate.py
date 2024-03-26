@@ -2,8 +2,7 @@
 #
 # Achtung: erfordert die Installation von ffmpeg (https://ffmpeg.org)
 
-
-import matplotlib
+import matplotlib 
 matplotlib.use("Agg")
 from matplotlib.animation import FFMpegWriter
 import matplotlib.patches as mpatches
