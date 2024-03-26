@@ -1,11 +1,25 @@
 # Python Template fuer Movie
 #
 # Achtung: erfordert die Installation von ffmpeg (https://ffmpeg.org)
-
+import numpy as np
 import matplotlib 
+import matplotlib.pyplot as plt
 matplotlib.use("Agg")
 from matplotlib.animation import FFMpegWriter
 import matplotlib.patches as mpatches
+
+l1 = 2 # Länge des 1. Roboter Arms
+l2 = 1 # Länge des 2. Roboter Arms
+
+
+def p(phi_1, phi_2):
+    py = np.sin(phi_1) * l1 + np.sin(phi_1+phi_2) * l2
+    px = np.cos(phi_2) * l1 + np.cos(phi_1+phi_2) * l2
+    return px, py
+
+
+
+
 
 metadata = dict(title='Trajektorie', artist='Your Name',
                 comment='Movie')
@@ -34,9 +48,12 @@ plt.ylabel('y')
 #       array([[0.        , 0.        ],
 #              [0.58856217, 1.91143783],
 #              [1.        , 1.        ]])
+
+"""
 with writer.saving(fig, 'Trajektorie.mp4',400):
     for s in si:
         l1.set_data(*PG(*s).T)
         l2.set_data(*PG(*s).T)
 
         writer.grab_frame()
+"""
