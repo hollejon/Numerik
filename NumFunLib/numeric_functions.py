@@ -1,10 +1,17 @@
-### Library with numerical functions ###
-###----------------------------------###
+"""
+ _   _                           _           _   _____                 _   _                 
+| \ | |_   _ _ __ ___   ___ _ __(_) ___ __ _| | |  ___|   _ _ __   ___| |_(_) ___  _ __  ___ 
+|  \| | | | | '_ ` _ \ / _ \ '__| |/ __/ _` | | | |_ | | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+| |\  | |_| | | | | | |  __/ |  | | (_| (_| | | |  _|| |_| | | | | (__| |_| | (_) | | | \__ \
+|_| \_|\__,_|_| |_| |_|\___|_|  |_|\___\__,_|_| |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+"""
 
 # To use this library, you need to add the path to the library to your python script.
-# - import sys
-# - sys.path.append("Your absolute path to the library")
-# - import numeric_functions as nf
+"""
+import sys
+sys.path.append("Your absolute path to the library")
+import numeric_functions as nf
+"""
 
 from matplotlib.pylab import norm
 import numpy as np
