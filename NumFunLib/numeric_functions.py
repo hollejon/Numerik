@@ -3,7 +3,7 @@
 
 # To use this library, you need to add the path to the library to your python script.
 # - import sys
-# - sys.path.append("C:/Users/tErAS/OneDrive/ZHAW/Semester_4/NUM/Praktikum/NumFunLib/")
+# - sys.path.append("Your absolute path to the library")
 # - import numeric_functions as nf
 
 from matplotlib.pylab import norm
