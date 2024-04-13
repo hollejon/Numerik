@@ -236,6 +236,53 @@ def gauss_newton(function, jacobi, x0, xdata, ydata, tol=1e-6, max_iter=100, dam
     return parameter
 
 
+# Newton Iteration
+def Newton(x0, F, df, tol = 1e-5, K = 1000):
+    k=0
+    x = x0
+    r = 1
+    res_k = np.array([])
+
+    while(r > tol and k < K):
+        k = k+1
+        J = df(x)
+
+        # y berechnen
+        y = F(x)
+
+        # Gleichungssystem lösen
+        ATA = np.dot(J.T,J)
+        ATB = np.dot(J.T,y) 
+
+        dx = np.linalg.solve(ATA,ATB)
+        #print("Resultat: ", x, dx)
+        x = x - dx
+        
+        r = np.linalg.norm(F(x))  
+        res_k = np.append(res_k,[r],axis= 0)
+        #print("Residuum: ", r, "\tAktueller Wert: ", x, "\tParameter: ", dx, "\tIteration: ", k)
+
+    return x, res_k
+
+# ============ Beispiel für Newton Iteration: ============
+# Nullstellenform der Modellfunktion
+#
+#def model(x):
+#    p = np.array([((0 - x[0])**2) + ((5 - x[1])**2) - x[2]**2,
+#                  ((4 - x[0])**2) + ((-1 - x[1])**2) - x[2]**2,
+#                   ((-2 - x[0])**2) + ((-3 - x[1])**2) - x[2]**2])
+#    return p
+#
+#def modeldf(x):
+#    return np.array([[2*x[0], 2*x[1] - 10, -2*x[2]], 
+#                     [2*x[0] - 8, 2*x[1] + 2, -2*x[2]], 
+#                     [2*x[0] + 4, 2*x[1] + 6, -2*x[2]]])
+#
+#
+#
+#x0 = [1,1,1]
+#print("Ergebnis: ", Newton(x0, model, modeldf))
+
 
 
 
