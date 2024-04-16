@@ -1,10 +1,128 @@
 
 import numpy as np
+from scipy.linalg import solve_triangular
 
 
 
 
 
+# Gauss Newton Algorithmus
+def gauss_newton(function, jacobi, x0, xdata, ydata, tol=1e-6, max_iter=100, damped=False, maxDampingIter=100):
+    """
+    Gauss-Newton Algorithmus für nicht lineare Gleichungen
+
+    Eingabe
+    function:   Funktion welche gefitet werden soll
+    jacobi:     Jakobi-Matrix der Funktion welche gefittet werden soll: Jacobi = Df(x)
+    x0:         Erster Schätzwert der Parameter. Müssen in der nähe der Lösung liegen damit der Algorithmus konvergiert.
+    ydata:      Vektor mit Messdaten
+    xdata:      Vektor mit Zeitdaten
+    max_iter:   Maximale Interationsschritte (default: 100)
+    tol:        Toleranz der Kovnergenz (default: 1e-6)
+
+    Rückgabe:
+    parameter:  Lösungsvektor, Zahlen der Parameter, damit die Lösung den kleinsten fehler Quadrate der Messdaten entspricht
+    """
+
+    k = 0 #Anzahl Interationen
+    parameter = x0.copy() #muss in der nähe der Lösung liegen damit es konvergiert
+    y = function(xdata, parameter) - ydata
+    j = jacobi(xdata, parameter)
+
+    r = np.array([np.linalg.norm(j.T@y)])
+    print("k", "x1\t", "x2\t", "x3\t", "x4\t", "r\t\t", "s")
+    
+    while r > tol and k < max_iter:
+        j = jacobi(xdata, parameter)
+        y = function(xdata, parameter) - ydata
+       
+        # Normalengleichung lösen
+        #deltax = np.linalg.solve(j.T@j, -j.T@y)
+
+        # Mit QR-Zerlegung
+        Q,R = np.linalg.qr(j)
+        deltax = solve_triangular(R, -Q.T@y, lower=False)
+        # Falls Dämpfung aktiviert ist
+        if damped == True:
+            delta_k = 1
+            n = 1
+            while  np.linalg.norm(parameter + deltax*delta_k) > np.linalg.norm(parameter) and n < maxDampingIter:
+                print("Dämpfung", n)
+                delta_k = delta_k / 2
+                n = n + 1
+            deltax = deltax*delta_k
+
+        parameter = parameter + deltax
+        k += 1
+
+        r = np.linalg.norm(j.T@y)
+        s = np.sum((y-function(xdata, parameter))**2)
+        print(k, round(parameter[0], 3), 
+               round(parameter[1], 3), "\t",
+               round(parameter[2], 3), "\t",
+               round(parameter[3], 3),"\t",
+               "{:.3e}\t".format(r),
+               "{:.3e}".format(s))
+
+    return parameter
+
+
+# Verfahren nach Runge Kutta  explizit
+def RK_explizit(x0, X, N, f):
+    h = (X-x0[0])/N
+    N = N+1
+    #print("EXP: Schrittweite: ", h)
+
+    x = np.zeros((N))
+    y = np.zeros((N))
+    x[0] = x0[0]
+    y[0] = x0[1]
+
+    for i in range(1, N):
+        x[i] = x[i-1] + h
+        k = f(x[i-1], y[i-1])
+        y[i] = y[i-1] + h*k
+
+    return x, y
+
+
+
+# Implizites Runge Kutta Verfahren
+def RK_implizit(x0, X, N, f, df, tol):
+    # x0: Startpunkt
+    # X: Endpunkt
+    # f: Funktion
+    # df: Jacobi Matrix der Funktion f
+    # N: Anzahl der Schritte
+    # tol: Toleranz
+    max_iter=20
+
+    h= (X-x0[0])/N
+    N = N+1
+    #print( "IMP: Schrittweite: ", h)
+    x = np.zeros(N)
+    y = np.zeros(N)
+    x[0] = x0[0]
+    y[0] = x0[1]
+
+    #Anfangspunkt berechnen
+    k = f(x[0],y[0])
+
+    for i in range(1,N):
+        step = 0
+        x[i] = x[i-1] + h
+        r = k - f(x[i-1] + h, y[i-1] + (h*k))
+
+        while np.abs(r) > tol and step < max_iter:
+            j = df(x[i-1] + h, y[i-1] + (h*k))
+            delta_k = -r / (1 - (h*j))
+            k = k + delta_k
+            r = k - f(x[i-1] + h, y[i-1] + (h*k))
+            step += 1
+
+        y[i] = y[i-1] + (h*k)
+
+    return x,y
 
 
 
