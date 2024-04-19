@@ -10,6 +10,7 @@ Lps =   150*10**-6  # Streuinduktivität in H
 Lsp =   150*10**-6  # Streuinduktivität in H
 R2 =    2           # Sekundärwiderstand in Ohm
 Ls =    500*10**-6  # Sekundärinduktivität in H
+U0 =    4           # Leerlaufspannung in V
 
 
 
