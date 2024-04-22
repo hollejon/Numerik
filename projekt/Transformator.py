@@ -19,5 +19,6 @@ U0 =    4           # Leerlaufspannung in V
 
 
 
-
-
+# DGL System Ax =b
+A = np.array([[(R1*1/Lp)/(1-Lps*Lsp*1/Ls),(R2*1/Ls*Lps)/(1-Lps*Lsp*1/Ls)],[(R2*(1/Ls)*Lsp*Lps)/(1+U0*(1/Lp)*Lsp*Lps),(R2(1/Ls)*Lsp)/(1+U0*(1/Lp)*Lsp*Lps*(1/Ls))]])
+b = np.array([(U0*(1/Ls))/(1-Lps*Lsp*(1/Ls)),0])
