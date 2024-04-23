@@ -4,7 +4,7 @@ from scipy.linalg import solve_triangular
 import random as rnd
 import numpy.linalg as lin
 
-
+# Raphael Was here
 
 
 # Gauss Newton Algorithmus
