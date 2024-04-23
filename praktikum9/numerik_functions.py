@@ -5,6 +5,7 @@ import random as rnd
 import numpy.linalg as lin
 
 
+# i was here
 
 
 # Gauss Newton Algorithmus
