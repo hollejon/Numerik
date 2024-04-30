@@ -5,6 +5,20 @@
 | |\  | |_| | | | | | |  __/ |  | | (_| (_| | | |  _|| |_| | | | | (__| |_| | (_) | | | \__ \
 |_| \_|\__,_|_| |_| |_|\___|_|  |_|\___\__,_|_| |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
 """
+"""
+LUT(M)..........................................LU decomposition for tridiagonal matrix
+LU(A............................................LU decomposition for general matrix A
+fbSubsT(LU, b)..................................Solve Ax = b for tridiagonal matrix LU
+linsolve(A, b)..................................Solve Ax = b for general matrix A
+fbSubs(LR, b)...................................Solve Ax = b for general matrix A
+mysign(x).......................................Signum Funktion
+e(n)............................................Einheitsvektor
+HouseholderTransformation(w)....................Householder transformation
+Newton(x0, F, df, tol, K).......................Newton Iteration
+rndOrtho(n).....................................random orthogonal matrix
+gauss_newton(function, jacobi, x0, xdata, ydata, tol, max_iter,
+              damped, maxDampingIter)...........Gauss-Newton Algorithmus für nicht lineare Gleichungen
+"""
 
 # To use this library, you need to add the path to the library to your python script.
 """
@@ -31,6 +45,7 @@ out: LU = [[0,      l_{21}, ..., l_{n-1,n-2}, l_{n,n-1}],
            
 """
 
+# LU decomposition for tridiagonal matrix
 def LUT(M): 
     n = M.shape[1] 
     for k in range(1,n): 
