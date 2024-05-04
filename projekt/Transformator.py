@@ -130,3 +130,113 @@ plt.title('RK4 mit Schrittweite h=0.1ns')
 plt.legend()
 plt.grid(True)
 plt.show()
+
+
+
+
+
+
+
+
+
+
+# Lösung mit Euler implizit
+
+
+
+def f(x,y):
+     
+     t = x[0]
+     x0 = x[1] # I1
+     x1 = x[2] # I2
+     return np.array([(R2*x0*Lps*Ls - R1*x1*(1/Lp)-U0) / (1 - (Lsp*Lps*Ls)),
+                      ((R1*x1)-U0)/((Lp/Lsp)-Lps)])
+
+
+    
+    
+
+
+def df(x,y):
+
+
+
+
+
+
+    return np.array([[-(R1*1/Lp)/(1-Lps*Lsp*1/Ls),-(R2*1/Ls*Lps)/(1-Lps*Lsp*1/Ls)],[(R1/(Lp/Lsp)-Lps),0]])
+
+
+
+        
+
+# Funktion Euler Implizit Eindimensional -> umschreiben auf 2D Stimmt no hine und vorne nöd !!
+def RK_implizit(x0, X, N, f, df, tol):
+    # x0: Startpunkt
+    # X: Endpunkt
+    # f: Funktion
+    # df: Jacobi Matrix der Funktion f
+    # N: Anzahl der Schritte
+    # tol: Toleranz
+    max_iter=20
+
+    h= (X-x0[0])/N
+    N = N+1
+    #print( "IMP: Schrittweite: ", h)
+    x = np.zeros(N)
+    y = np.zeros(N)
+    x[0] = x0[0]
+    y[0] = x0[1]
+
+    #Anfangspunkt berechnen
+    k = f(x[0],y[0])
+
+    for i in range(1,N):
+        step = 0
+        x[i] = x[i-1] + h
+        r = k - f(x[i-1] + h, y[i-1] + (h*k))
+
+        while np.abs(r) > tol and step < max_iter:
+            j = df(x[i-1] + h, y[i-1] + (h*k))
+            delta_k = -r / (1 - (h*j))
+            k = k + delta_k
+            r = k - f(x[i-1] + h, y[i-1] + (h*k))
+            step += 1
+
+        y[i] = y[i-1] + (h*k)
+
+    return x,y
+
+
+
+x0 = (0.0, 0.0)
+tend = 0.00005
+h =    0.000000001
+tol = 0.0001
+
+
+I_x, t = RK_implizit(x0, tend, 1000, f, df, tol)
+#t2, I_x2 = RK4(0,x0,h,tend, model2)
+
+
+
+# =================== Plot erstellen ===================
+plt.figure(4)
+plt.plot(t, I_x[0],  '.-', label='v0=0')
+#plt.plot(t2, I_x2[:,0],  '.-', label='I1')
+plt.ylabel('I1[A]')
+plt.xlabel('t')
+plt.title('RK Implizit')
+plt.legend()
+plt.grid(True)
+
+
+plt.figure(5)
+plt.plot(t, I_x[1],  '.-', label='v0=0')
+#plt.plot(t2, I_x2[:,1],  '.-', label='v0=0')
+plt.ylabel('I2[A]')
+plt.xlabel('t')
+plt.title('RK4 mit Schrittweite h=0.1ns')
+plt.legend()
+plt.grid(True)
+plt.show()
