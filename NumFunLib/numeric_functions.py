@@ -26,9 +26,10 @@ import sys
 sys.path.append("Your absolute path to the library")
 import numeric_functions as nf
 """
-
+import matplotlib.pyplot as plt
 from matplotlib.pylab import norm
 import numpy as np
+import scipy as sp
 from sympy import solve_triangulated
 
 
@@ -320,3 +321,39 @@ def rndCond(n, cond):
     A = np.diag(d)
     U,V = rndOrtho(n), rndOrtho(n)
     return U@A@V.T
+
+
+
+"""
+https://docs.scipy.org/doc/scipy/reference/integrate.html
+def DGLs(y_vec,t):
+    y_1, y_2 = y_vec
+    dy_1_dt = 3*y_1 + 2*y_2 - (2*t**2 + 1)*np.exp(2*t)
+    dy_2_dt = 4*y_1 + y_2 + (t**2 +2*t - 4)*np.exp(2*t)
+    return np.array([dy_1_dt,dy_2_dt])
+
+
+def dgl2(y_vec,t):
+    y_1, y_2 = y_vec
+    dy_1_dt = (t**2)/y_1
+    dy_2_dt = 0
+    return np.array([dy_1_dt,dy_2_dt])
+
+N=100
+tval = np.linspace(0, 1, N+1)
+y_1_0 = 0
+y_2_0 = -4
+initialval = np.array([y_1_0,y_2_0])
+Loes = sp.integrate.odeint(dgl2, initialval, tval)
+
+
+
+plt.xlabel(r"$\rm t$")
+plt.ylabel(r"$\rm y_1,y_2$")
+plt.plot(tval, Loes[:, 0],c="blue", label=r"$\rm y_1(t)$")
+plt.plot(tval, Loes[:, 1],c="red", label=r"$\rm y_2(t)$")
+plt.legend(loc='upper center',fontsize=16)
+plt.grid(True)
+plt.show()
+
+"""
