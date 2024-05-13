@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 def equations(t, y, R1, R2, Ls, Lp, Lps, Lsp):
     I1, I2 = y
     U0 = -4*np.sin(2*np.pi*f*t)
-    dI1dt = (U0/Ls + R2*I2*Lps/Ls - R1*I1/Lp) / (1 - Lps*Lsp/Ls)
+    dI1dt = (-U0/Ls + R2*I2*Lps/Ls - R1*I1/Lp) / (1 - Lps*Lsp/Ls)
     dI2dt = (-U0 + R1*I1) / (Lp/Lsp - Lps)
     return [dI1dt, dI2dt]
 
