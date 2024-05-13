@@ -26,6 +26,7 @@ y0 = [0, 0]
 # Definiere die Zeitpunkte, an denen die Lösung berechnet werden soll
 t_span = (0, 0.00005)  # Start- und Endzeit
 t_eval = np.linspace(0, 0.00005, 10000000)  # Zeitpunkte für die Auswertung
+print(t_eval)
 
 # Löse das Differentialgleichungssystem
 sol = solve_ivp(equations, t_span, y0, t_eval=t_eval, args=(R1, R2, Ls, Lp, Lps, Lsp))
