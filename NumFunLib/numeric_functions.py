@@ -20,54 +20,137 @@ gauss_newton(function, jacobi, x0, xdata, ydata, tol, max_iter,
               damped, maxDampingIter)...........Gauss-Newton Algorithmus für nicht lineare Gleichungen
 """
 
-# To use this library, you need to add the path to the library to your python script.
-"""
-import sys
-sys.path.append("Your absolute path to the library")
-import numeric_functions as nf
-"""
+
+print("Load Library: numeric_functions.py")
 import matplotlib.pyplot as plt
 from matplotlib.pylab import norm
 import numpy as np
 import scipy as sp
-from sympy import solve_triangulated
+from scipy.linalg import solve_triangular,lu,lu_solve
+import sympy as sym
 
 
 """
+Uebersicht:
 
-LU decomposition for tridiagonal matrix
-in: a  =  [[0,      a_{21}, ..., a_{n-1,n-2}, a_{n,n-1}],
-           [a_{11}, a_{22}, ..., a_{n-1,n-1}, a_{nn}],
-           [a_{12}, a_{23}, ..., a_{n-1,n},   0]]
+-------------------- Praktiukum 2 --------------------
+LU-Zerlegung
+def LU(M):
+    M: Quadratische MAtrix   
 
-out: LU = [[0,      l_{21}, ..., l_{n-1,n-2}, l_{n,n-1}],
-           [r_{11}, r_{22}, ..., r_{n-1,n-1}, r_{nn}],
-           [r_{12}, r_{23}, ..., r_{n-1,n},   0]]
-           
+Vorwaerts / Rueckwaertseinsetzen
+def fbSubs(LR, b):
+    LR: LR-Zerlegte Matrix
+    b: rechte seite von Ax=b 
+
+lineares Gleichungssystem A*x = b loesen.
+def linsolve(A, b):
+    A: MAtrix
+    b: rechte seite von A*x = b
+
+
+-------------------- Praktiukum 3 --------------------
+# LU-Zerlegung für tridiagonale Matrix
+# in: tridiagonale Matrix M
+def LUT(M):
+    M: tridiagonale Matrix M     
+
+# Solve Ax = b for tridiagonal matrix LU
+def fbSubsT(LU, b):
+    LU: LU zerlegte tridiagonal Matrix
+    b: rechte seite von A*x=b
+
+    
+-------------------- Praktiukum 4 --------------------
+cholesky Zerlegung Beispiel: Z 239
+
+
+-------------------- Praktiukum 5 --------------------
+QR-Zerlegung Beispiel: Z: 270
+
+
+-------------------- Praktiukum 6 --------------------
+# NichtLineare Gleichungssysteme und Ausgleichsrechnung
+# Newton-Verfahren
+
+def Newton(x0, F, df, tol = 1e-5, K = 1000):
+    x0: Anfangswerte
+    F: Modellfunktion
+    df: Jacobifunktion
+    tol: toleranz
+    K: Anzahl Iterationen
+
+-------------------- Praktiukum 7 --------------------
+# NichtLineare Gleichungssysteme und Ausgleichsrechnung
+# Gauss-Newton-Verfahren
+
+def gauss_newton(function, jacobi, x0, xdata, ydata, tol=1e-6, max_iter=100, damped=False, maxDampingIter=100):
+    function:   Modellfunktion
+    jacobi:     Jacobi-Matrix
+    x0:         Anfangswerte
+    xdata:      Vektor mit Zeitdaten
+    ydata:      Vektor mit Messdaten
+    tol:        Toleranz
+    max_iter:   Maximale iterationen
+
+
+
+def rndOrtho(n):                                #Beispielcode
+def rndCond(n, cond):                           #Beispielcode
+
 """
 
-# LU decomposition for tridiagonal matrix
-def LUT(M): 
-    n = M.shape[1] 
-    for k in range(1,n): 
-        for i in range(0,2): 
-            if i == 0: 
-                M[i][k] = M[i][k]/M[i+1][k-1] 
-            else: 
-                M[i][k] = M[i][k]-M[i-1][k]*M[i+1][k-1]
-    return M
+
+# ----------------------------------------- Praktikum 1 -----------------------------------------
+# Differenzenquotienten, log-log-Plots für Fehler gegen Schrittweite
+def f(x):
+    return np.cos(x)
+x0 = 1
+
+# exakter Wert der Ableitung
+y = -np.sin(1)
+
+DeltaRechts = []
+DeltaLinks = []
+DeltaZentral = []
+Hs = 10.**np.arange(-20,-1) # logarithmische Schrittweite
+
+for h in Hs:
+    # Fehler des rechtsseitigen Differenzenquotient
+    DeltaRechts.append(np.abs(y-(f(x0+h)-f(x0))/h))
+    
+    # Fehler des linksseitigen Differenzenquotient
+    DeltaLinks.append(np.abs(y-(f(x0)-f(x0-h))/h))
+    
+    # Fehler des zentralen Differenzenquotient
+    DeltaZentral.append(np.abs(y-(f(x0+h)-f(x0-h))/(2*h)))
 
 
+#plt.loglog(Hs,DeltaRechts,'o-',label='Vorwaertsdifferenzenquotient')
+# die beiden folgenden Zeilen können Sie nach dem Implementieren
+# der weiteren Differenzenquotienten aktivieren
+# plt.loglog(Hs,DeltaLinks,'.-',label='Rueckwaertsdifferenzenquotient')
+# plt.loglog(Hs,DeltaZentral,'.-',label='zentraler DiffQuotient')
+# plt.xlabel('Schrittweite')
+# plt.ylabel('absoluterFehler')
+# plt.title('Fehlerentwicklung der Differenzenquotienten fuer h->0')
+# plt.legend()
+# plt.grid()
+# plt.show()
 
-# LU decomposition for general matrix A
+
+# ----------------------------------------- Praktikum 2 -----------------------------------------
+# LR-Zerlegung ohne und mit Spaltenpivotisierung, Vorwaerts- und Rückwaertseinsetzen
+
+# LR-Zerlegung der quadratischen Matrix A    
+# in: quadratische Matrix A
+#out: 
+# - A wird überschrieben, unteres Dreieck = L (ohne Diagonale), oberes Dreieck = R
+# - idx: Indexvektor der Zeilenvertauschungen
 def LU(A):
     m = A.shape[0]
     idx = np.array(range(m))    
-    #print("M", m, "idx: ", idx, "A: ", A)
-
     for k in range(0,m):
-
-
         for i in range(k+1,m):
             if(A[k][k] == 0):
                 #Pivot ist gleich 0 -> Vertausche Zeilen
@@ -90,32 +173,26 @@ def LU(A):
     return A, idx
 
 
+# Vorwawrts- und Rückwaertseinsetzen
 
-"""
-in: LU (output from LUT), vector b
-out: vector x s.t. L@U@x == b
-"""  
-# Solve Ax = b for tridiagonal matrix LU
-def fbSubsT(LU, b):
-
-    n = len(b)          #calculate length of b
-    y = np.zeros(n)     #array with size of n
-    x = np.zeros(n)     #array with size of n
-    
-    #vorwärts
-    y[0] = b[0]         #The first element of y is set equal to the first element of vector b
+# Solve Ax = b for general matrix A
+def fbSubs(LR, b):
+    n = len(b)   
+    # Vorwaertseinsetzen
+    y = np.zeros(n)
+    y[0]=b[0]
     for i in range(1,n):
-        y[i] = b[i] - LU[0, i] * y[i-1]   #For each element of y (starting from the second one), it subtracts the dot prodt of the corresponding row of LU with the elements of y from b[i]
-                    #This line computes the last element of x by dividing the last element of y by the last diagonal element of LU    
-    #rückwärts
-    x[-1]= y[-1] / LU[1,-1]
-    for i in range(n-2,-1,-1):
-        x[i] = (y[i] - LU[2,i] * x[i+1]) / LU[1,i]  #This loop computes the remaining elements of x iteratively starting from the second last one. It subtracts the dot product of the corresponding row of LU with the elements of x from the corresponding element of y and then divides it by the diagonal element of LU
-    
+        y[i] = b[i] - np.dot(LR[i][:i], y[:i])
+   
+    # Rueckwaertseinsetzen
+    x = np.zeros(n)
+    x[n-1]= y[n-1]/LR[n-1][n-1]
+    for j in range(n-2, -1, -1):  
+        x[j] = (y[j] - np.dot(LR[j][j+1:], x[j+1:]))/LR[j][j]
+ 
     return x
 
-
-# lineares Gleichungssystem A*x = b lösen.
+# lineares Gleichungssystem A*x = b loesen.
 def linsolve(A, b):
     M_LU, idx = LU(A)
     #Fuer L*R*x = P*b muessen wir P*b berechnen
@@ -130,68 +207,180 @@ def linsolve(A, b):
     res = fbSubs(M_LU, P_b)
     return res
 
+# ========== Example: Solve linear system with LR ==========
+ 
+#b=y_m
+#ATA = np.dot(A.T, A)
+#ATb = np.dot(A.T, b)
+#alphalr = np.linalg.solve(ATA, ATb)
+
+# Berechnete alphas auf einen Zeitvektor anwenden
+
+# t = np.linspace(0, 10, 100)
+# for i in range(0, len(t)):
+#     y_mLR[i] = alphalr[0]*A1(t[i]) + alphalr[1] + alphalr[2]*t[i] + alphalr[3]*t[i]**2 + alphalr[4]*t[i]**3
 
 
+# plt.plot(t,y_mLR,'-', label='Approximation mit LR')
+# plt.xlabel('Frequenz')
+# plt.ylabel('Signal')
+# plt.legend()
+# plt.grid()
+# plt.show()
 
-# Solve Ax = b for general matrix A
-def fbSubs(LR, b):
-    # code
-    n = len(b)   
-   
-     # Vorwärtseinsetzen
-    y = np.zeros(n)
-    y[0]=b[0]
+
+# ----------------------------------------- Praktikum 3 -----------------------------------------
+# auch für Tridiagonalmatrizen, Anwendung auf lineare Randwertprobleme
+
+# LU-Zerlegung für tridiagonale Matrix
+# in: tridiagonale Matrix M
+def LUT(M): 
+    n = M.shape[1] 
+    for k in range(1,n): 
+        for i in range(0,2): 
+            if i == 0: 
+                M[i][k] = M[i][k]/M[i+1][k-1] 
+            else: 
+                M[i][k] = M[i][k]-M[i-1][k]*M[i+1][k-1]
+    return M
+
+
+# Vorwärts- und Rückwärtseinsetzen für tridiagonale Matrix
+#in: LU (output from LUT), vector b
+#out: vector x s.t. L@U@x == b
+  
+# Solve Ax = b for tridiagonal matrix LU
+def fbSubsT(LU, b):
+    n = len(b)          #calculate length of b
+    y = np.zeros(n)     #array with size of n
+    x = np.zeros(n)     #array with size of n
+    
+    #vorwaerts
+    y[0] = b[0]         #The first element of y is set equal to the first element of vector b
     for i in range(1,n):
-        y[i] = b[i] - np.dot(LR[i][:i], y[:i])
-   
- 
-    # Rückwärtseinsetzen
-    x = np.zeros(n)
-    x[n-1]= y[n-1]/LR[n-1][n-1]
-    for j in range(n-2, -1, -1):  
-        x[j] = (y[j] - np.dot(LR[j][j+1:], x[j+1:]))/LR[j][j]
- 
+        y[i] = b[i] - LU[0, i] * y[i-1]   #For each element of y (starting from the second one), it subtracts the dot prodt of the corresponding row of LU with the elements of y from b[i]
+                    #This line computes the last element of x by dividing the last element of y by the last diagonal element of LU    
+    #rueckwaerts
+    x[-1]= y[-1] / LU[1,-1]
+    for i in range(n-2,-1,-1):
+        x[i] = (y[i] - LU[2,i] * x[i+1]) / LU[1,i]  #This loop computes the remaining elements of x iteratively starting from the second last one. It subtracts the dot product of the corresponding row of LU with the elements of x from the corresponding element of y and then divides it by the diagonal element of LU
+    
     return x
 
+# Lösen des linearen Systems
+#y = solve_triangular(L, A @ y_m, lower=True)
+#c = solve_triangular(L.T, y, lower=False)
 
-# Signum Funktion
-def mysign(x): # numpy sign liefert 0 für 0
-    if x >= 0:
-        return 1
-    else:
-        return -1
+# ----------------------------------------- Praktikum 4 -----------------------------------------
+# Lineare Ausgleichsrechnung
+# Cholesky zerlegung
+y_m = [5, 6, 7, 8, 9]
+A = np.array([[1, 2, 3, 6, 7], [4, 5, 6, 7, 7], [7, 8, 9, 7, 7], [10, 11, 12, 8, 8], [13, 14, 15, 8, 8]])
 
-# Einheitsvektor
-def e(n):
-    r = np.array([1]+[0 for k in range(n-1)])
-    return r
+b=y_m
+ATA = np.dot(A.T, A)
+ATb = np.dot(A.T, b)
 
-
-# Householder transformation
-def HouseholderTransformation(w):
-    Im = np.eye((len(w)))
-    x = w[:,0]
-    x_norm = norm(x)
-    sgn = mysign(w[0,0])
-    e_1 = e(len(w))
-
-    v = x + (sgn * x_norm) * e_1
-
-    #print("Erster Vektor: ", x, x_norm, "\tSGN: ",sgn, w[0,0], "e1: ", e_1, v)
-
-    v_t_v = v.T @ v
-    v_v_t = np.outer(v,v) # v mal v.T rechnen
-    #print("V: ",np.absolute(w))
-
-    H = Im - ((2* v_v_t) /  v_t_v)
-    #print("Im: ", Im)
-    #print(v_t_v, v_v_t)
-    #print("H:", H)
-    return H
+#    L = np.linalg.cholesky(ATA)
+#    y = np.linalg.solve(L, ATb)
+#    alphacy = np.linalg.solve(L.T, y)
 
 
+# Berechnete alphas auf einen Zeitvektor anwenden
+# for i in range(0, len(t)):
+#     y_mcy[i] = alphacy[0]*A1(t[i]) + alphacy[1] + alphacy[2]*t[i] + alphacy[3]*t[i]**2 + alphacy[4]*t[i]**3
+# 
+# 
+# plt.plot(t,y_mcy,'-', label='Approximation mit Cholesky')
+# plt.xlabel('Frequenz')
+# plt.ylabel('Signal')
+# plt.legend()
+# plt.grid()
+# plt.show()
 
 
+# ----------------------------------------- Praktikum 5 -----------------------------------------
+# Lineare Ausgleichsrechnung
+# QR-zerlegung
+Q,R = np.linalg.qr(A)
+
+# Solve liner system with QR
+y_num =  np.dot(Q.T, y_m)
+alpha = solve_triangular(R, y_num, trans=0, lower=False, unit_diagonal=False, overwrite_b=False, check_finite=True)
+
+# Berechnete alphas auf einen Zeitvektor anwenden
+# for i in range(0, len(t)):
+#     y_m1[i] = alpha[0]*A1(t[i]) + alpha[1] + alpha[2]*t[i] + alpha[3]*t[i]**2 + alpha[4]*t[i]**3
+# 
+# 
+# plt.plot(t,y_m1,'-', label='Approximation mit QR')
+# plt.xlabel('Frequenz')
+# plt.ylabel('Signal')
+# plt.legend()
+# plt.grid()
+# plt.show()
+
+
+# ----------------------------------------- Praktikum 6 -----------------------------------------
+# NichtLineare Gleichungssysteme und Ausgleichsrechnung
+# Newton-Verfahren
+def Newton(x0, F, df, tol = 1e-5, K = 1000):
+    k=0
+    x = x0
+    r = 1
+    res_k = np.array([])
+
+    while(r > tol and k < K):
+        k = k+1
+        J = df(x)
+        y = F(x)
+
+        # Gleichungssystem lösen
+        ATA = np.dot(J.T,J)
+        ATB = np.dot(J.T,y) 
+
+        dx = np.linalg.solve(ATA,ATB)
+        #print("Resultat: ", x, dx)
+        x = x - dx
+        r = np.linalg.norm(F(x))  
+        res_k = np.append(res_k,[r],axis= 0)
+
+    return x, res_k
+
+
+# ========== Example: Newton-Verfahren ==========
+# p_l1 = 2.0 # Länge des 1. Roboter Arms
+# p_l2 = 1.0 # Länge des 2. Roboter Arms
+# 
+# P = [-1.0, 2.0]
+# 
+# # Nullstellenform
+# def modell(t):
+#     p = np.array([p_l1*np.cos(t[0]) + p_l2 *np.cos(t[0]+t[1]) - P[0], 
+#                   p_l1*np.sin(t[0]) + p_l2 *np.sin(t[0]+t[1]) - P[1]])
+#     return p
+# 
+# #Jacobi-Matrix berechnen
+# def modell_df(x):
+#     J = np.array([[-p_l1*np.sin(x[0])-p_l2*np.sin(x[0]+x[1]),-p_l2*np.sin(x[0]+x[1])],
+#                   [ p_l1*np.cos(x[0])+p_l2*np.cos(x[0]+x[1]), p_l2*np.cos(x[0]+x[1])]])
+#     return J
+# 
+# x0 = np.array([1, 1])
+# a_k, res_k= Newton(x0, modell, modell_df)
+# 
+# plt.plot(res_k, 'o', label='Messwerte')
+# plt.xlabel('Step')
+# plt.ylabel('Abweichung')
+# plt.legend()
+# plt.grid()
+# plt.yscale("log")
+# plt.show()
+
+
+# ----------------------------------------- Praktikum 7 -----------------------------------------
+# NichtLineare Gleichungssysteme und Ausgleichsrechnung
+# Gauss-Newton-Verfahren
 def gauss_newton(function, jacobi, x0, xdata, ydata, tol=1e-6, max_iter=100, damped=False, maxDampingIter=100):
     """
     Gauss-Newton Algorithmus für nicht lineare Gleichungen
@@ -226,7 +415,7 @@ def gauss_newton(function, jacobi, x0, xdata, ydata, tol=1e-6, max_iter=100, dam
 
         # Mit QR-Zerlegung
         Q,R = np.linalg.qr(j)
-        deltax = solve_triangulated(R, -Q.T@y, lower=False)
+        deltax = solve_triangular(R, -Q.T@y, lower=False)
         # Falls Dämpfung aktiviert ist
         if damped == True:
             delta_k = 1
@@ -252,54 +441,44 @@ def gauss_newton(function, jacobi, x0, xdata, ydata, tol=1e-6, max_iter=100, dam
     return parameter
 
 
-# Newton Iteration
-def Newton(x0, F, df, tol = 1e-5, K = 1000):
-    k=0
-    x = x0
-    r = 1
-    res_k = np.array([])
-
-    while(r > tol and k < K):
-        k = k+1
-        J = df(x)
-
-        # y berechnen
-        y = F(x)
-
-        # Gleichungssystem lösen
-        ATA = np.dot(J.T,J)
-        ATB = np.dot(J.T,y) 
-
-        dx = np.linalg.solve(ATA,ATB)
-        #print("Resultat: ", x, dx)
-        x = x - dx
-        
-        r = np.linalg.norm(F(x))  
-        res_k = np.append(res_k,[r],axis= 0)
-        #print("Residuum: ", r, "\tAktueller Wert: ", x, "\tParameter: ", dx, "\tIteration: ", k)
-
-    return x, res_k
-
-# ============ Beispiel für Newton Iteration: ============
-# Nullstellenform der Modellfunktion
-#
-#def model(x):
-#    p = np.array([((0 - x[0])**2) + ((5 - x[1])**2) - x[2]**2,
-#                  ((4 - x[0])**2) + ((-1 - x[1])**2) - x[2]**2,
-#                   ((-2 - x[0])**2) + ((-3 - x[1])**2) - x[2]**2])
-#    return p
-#
-#def modeldf(x):
-#    return np.array([[2*x[0], 2*x[1] - 10, -2*x[2]], 
-#                     [2*x[0] - 8, 2*x[1] + 2, -2*x[2]], 
-#                     [2*x[0] + 4, 2*x[1] + 6, -2*x[2]]])
-#
-#
-#
-#x0 = [1,1,1]
-#print("Ergebnis: ", Newton(x0, model, modeldf))
 
 
+# ============ Beispiel für Gauss-Newton Verfahren: ============
+
+# Parameter for Gauss-Newton test
+# tk = np.array([0.1, 0.3, 0.7, 1.2, 1.6, 2.2, 2.7, 3.1, 3.5, 3.9])
+# yk = np.array([0.558, 0.569, 0.176, -0.207, -0.133, 0.132, 0.055, -0.090, -0.069, 0.027])
+# 
+# # Modellfunktion definieren
+# def model(t, x):
+#     return x[0]*np.exp(-x[1]*t)*np.sin(x[2]*t+x[3])
+# 
+# # Jakobi-Matrix der Modellfunktion definieren
+# def model_df(t, x):
+#     print(t)
+#     J =  np.array([        np.exp(-x[1]*t)*np.sin(x[2]*t+x[3]),
+#                    -x[0]*t*np.exp(-x[1]*t)*np.sin(x[2]*t+x[3]),
+#                     x[0]*t*np.exp(-x[1]*t)*np.cos(x[2]*t+x[3]),
+#                      x[0]*np.exp(-x[1]*t)*np.cos(x[2]*t+x[3])])
+#     return J.T
+# 
+# 
+# # Startwerte
+# startwerte = np.array([0.5, 1, 3, 1]) # = Anzahl Parameter in der Jacobi-Funktion
+# alpha = gauss_newton(model, model_df, startwerte, tk, yk, tol=1e-6, max_iter=100)
+# print(alpha)
+# 
+# # Grössere Anzahl an Messpunkten
+# time = np.linspace(0,4,501)
+# 
+# # Messpunkte und gefittete Funktion plotten
+# plt.plot(tk, yk, 'o', label='Messpunkte')
+# plt.plot(time, model(time, alpha),'-', label='Gauss-Newton')
+# plt.ylabel('Signal')
+# plt.xlabel('Zeit')
+# plt.legend()
+# plt.grid(True)
+# plt.show()
 
 
 
@@ -321,6 +500,10 @@ def rndCond(n, cond):
     A = np.diag(d)
     U,V = rndOrtho(n), rndOrtho(n)
     return U@A@V.T
+
+
+
+print("Load Library done: numeric_functions.py")
 
 
 
