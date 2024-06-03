@@ -96,13 +96,13 @@ def implizit_Trapez(x0, X, f, df, N, tol=1e-3):
 
     
 
-# Verfahren Runge-Kutta-Verfahren (RK4) (für ein autonomes System)      Nicht getestet
-def runga_kutta_RK4_2Systeme(x0, h, tend, f):
-    # x0: Anfangswerte
-    # y0: Anfangswerte
-    # tend: Zeit bis zum Ende
+# Verfahren Runge-Kutta-Verfahren (RK4) (für ein autonomes System)      Getestet
+    # x0: Anfangswerte [x1, x2, ...]
+    # t0: Anfangswert
     # h: Schrittweite
+    # tend: Zeit bis zum Ende
     # f: Funktion mit n Gleichungen
+    return x, t
 
     
 
@@ -478,64 +478,58 @@ def implizit_Trapez(x0, X, f, df, N, tol=1e-3):
 # plt.show()
 # ----------------------------------------- Praktikum 11 -----------------------------------------
 #  Runge-Kutta-Verfahren (RK4) (für ein autonomes System)
-def runga_kutta_RK4_2Systeme(x0, h, tend, f):
-    # x0: Anfangswerte
-    # y0: Anfangswerte
-    # tend: Zeit bis zum Ende
+def runga_kutta_RK4_2Systeme(x0, t0, h, tend, f):
+    # x0: Anfangswerte [x1, x2, ...]
+    # t0: Anfangswert
     # h: Schrittweite
+    # tend: Zeit bis zum Ende
     # f: Funktion mit n Gleichungen
-    N = int(tend / h) +1
 
-    # Vektor mit dx-daten und x-daten
-    x = np.zeros((N, np.shape(x0)[0]))
-
-    # Zeitvektor
-    t = np.zeros((N))
+    N = int((tend - t0) / h)
+    t = np.zeros(N+1)
+    x = np.zeros((N+1,np.shape(x0)[0]))
     
-    x[0][0] = x0[0]
-    x[0][1] = x0[1]
-
-    for i in range(1, N):
+    t[0] = t0
+    x[0,:] = x0
+    for i in range(1, N+1):
         t[i] = t[i-1] + h
 
-        k1 = f(t[i], x[i-1,:])
-        k2 = f(t[i], [x[i-1,0] + 0.5*h*k1[1], x[i-1, 1] + 0.5*h*k1[0]])
-        k3 = f(t[i], [x[i-1,0] + 0.5*h*k2[1], x[i-1, 1] + 0.5*h*k2[0]])
-        k4 = f(t[i], [x[i-1,0] + h*k3[1],     x[i-1, 1] + h*k3[0]])
-
-        x[i, 0] = x[i-1, 0] + h*((1/6)*k1[1] + (1/3)*k2[1] + (1/3)*k3[1] + (1/6)*k4[1]) #dx
-        x[i, 1] = x[i-1, 1] + h*((1/6)*k1[0] + (1/3)*k2[0] + (1/3)*k3[0] + (1/6)*k4[0]) #x
-
+        k1 = f(t[i-1], x[i-1,:])
+        k2 = f(t[i-1] + 0.5*h, x[i-1,:] + 0.5*h*k1)
+        k3 = f(t[i-1] + 0.5*h, x[i-1,:] + 0.5*h*k2)
+        k4 = f(t[i-1] + h, x[i-1,:] + h*k3)
+        x[i,:] = x[i-1,:] + h*(k1 + 2*k2 + 2*k3 + k4)/6
     return x, t
+
 
 # ========== Example: Runge-Kutta-Verfahren (RK4) (für ein autonomes System) ==========
 # Parameter
-p       = 1.184  # kg/m^3
-Ca      = 0.45  # constant
-Rkugel  = 0.1   # m
-m       = 0.05  # kg
-g       = 9.81  # m/s^2
-ks      = 0.05  # N/m
-v0      = 0.0     # m/s
-k       = 0.5 * Ca * p * np.pi * Rkugel**2 
+# p       = 1.184  # kg/m^3
+# Ca      = 0.45  # constant
+# Rkugel  = 0.1   # m
+# m       = 0.05  # kg
+# g       = 9.81  # m/s^2
+# ks      = 0.05  # N/m
+# v0      = 0.0     # m/s
+# k       = 0.5 * Ca * p * np.pi * Rkugel**2 
 # print(k)
 # # Hier Modelfunktion definieren
 # def model1(t, x):
 #     x0 = x[0] # dx
 #     x1 = x[1] # x
-#     return np.array([x0,  -(k/m)*(x0+v0)*np.abs(x0+v0) - ((ks*x1)/m) + g])
+#     return np.array([x1,  -(k/m)*np.sign(x1+v0)* (x1+v0)**2 - ((ks*x0)/m) + g])
 # 
 # # Hier Anfangswerte, Endzeitpunktun und schrittweite definieren
-# x0 = (0, 0)
+# x0 = [0, 0]
+# t0 = 0
 # tend = 100
 # h = 0.25
 # 
 # v0 = 0.0
-# v0_x, t = runga_kutta_RK4_2Systeme(x0, h, tend, model1)
+# xdata, t = runga_kutta_RK4_2Systeme(x0, t0, h, tend, model1)
 # 
 # plt.figure(1)
-# plt.plot(t, v0_x[:,0],  '.-', label='v0=0')
-# plt.plot(t, v0_x[:,1],  '.-', label='v0=0')
+# plt.plot(t, xdata,  '.-', label='v0=0')
 # plt.ylabel('dx[m]')
 # plt.xlabel('t')
 # plt.title('RK4 mit Schrittweite h=0.25')
@@ -697,17 +691,15 @@ for k in range(1, K):
     #norm[k] = np.linalg.norm(u[:, k] - u[:, k-1])
     #t[k] = k*dt
 
-plt.figure()
-plt.plot(x, u[:,0], '.-', label='t = 0s')
-plt.plot(x, u[:,10-1], '.-', label='t = 100s')
-plt.plot(x, u[:,K-1], '.-', label='t = 1000s')
-plt.xlabel("x [m]")
-plt.ylabel("T [°]")
-plt.legend()
-plt.grid()
-
-
-plt.show()
+#plt.figure()
+#plt.plot(x, u[:,0], '.-', label='t = 0s')
+#plt.plot(x, u[:,10-1], '.-', label='t = 100s')
+#plt.plot(x, u[:,K-1], '.-', label='t = 1000s')
+#plt.xlabel("x [m]")
+#plt.ylabel("T [°]")
+#plt.legend()
+#plt.grid()
+#plt.show()
 
 
 
